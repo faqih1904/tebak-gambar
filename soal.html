@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tebak Gaya Perangkat IT – Kuis 3 Kelompok</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#dff3ff; --bg-dot:#c4e6fb; --surface:#ffffff; --surface2:#f1f7ff;
+  --ink:#13235b; --muted:#4a5a8c; --line:#13235b;
+  --accent:#6a4cff; --accent-ink:#ffffff;
+  --good:#11a36a; --bad:#e8455a;
+  --t0:#ff5a5f; --t1:#12b5a6; --t2:#ffb627;
+  --t0-soft:#ffe1e2; --t1-soft:#d3f5f1; --t2-soft:#fff0cc;
+  --shadow:4px 4px 0 var(--line);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1736; --bg-dot:#1a2752; --surface:#18244f; --surface2:#1f2d5e;
+    --ink:#eaf0ff; --muted:#a9b6e0; --line:#05091c;
+    --accent:#8c74ff; --accent-ink:#ffffff;
+    --good:#2fd08f; --bad:#ff6b7d;
+    --t0-soft:#4a2230; --t1-soft:#123f44; --t2-soft:#4a3a14;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1736; --bg-dot:#1a2752; --surface:#18244f; --surface2:#1f2d5e;
+  --ink:#eaf0ff; --muted:#a9b6e0; --line:#05091c;
+  --accent:#8c74ff; --accent-ink:#ffffff;
+  --good:#2fd08f; --bad:#ff6b7d;
+  --t0-soft:#4a2230; --t1-soft:#123f44; --t2-soft:#4a3a14;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0;min-height:100%;
+  font-family:"Fredoka",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(var(--bg-dot) 2px,transparent 2px);
+  background-size:26px 26px;
+  line-height:1.45;
+}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+
+/* ---------- header ---------- */
+.top{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  padding:10px clamp(12px,3vw,28px);
+  background:var(--surface);border-bottom:3px solid var(--line);
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.25rem}
+.brand .logo{font-size:1.6rem;display:inline-block;animation:wiggle 2.4s ease-in-out infinite}
+.scores{display:flex;gap:8px;flex-wrap:wrap}
+.chip{
+  display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:999px;
+  border:3px solid var(--line);background:var(--surface2);font-weight:600;transition:transform .2s
+}
+.chip .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line)}
+.chip b{font-size:1.15rem;min-width:2ch;text-align:right}
+.chip.active{transform:translateY(-2px);box-shadow:var(--shadow)}
+.chip.bump b{animation:bump .6s}
+.tools{display:flex;gap:6px}
+.icon-btn{
+  border:3px solid var(--line);background:var(--surface2);border-radius:12px;
+  padding:6px 10px;font-weight:600;font-size:.95rem
+}
+
+main{max-width:1180px;margin:0 auto;padding:clamp(14px,3vw,30px)}
+
+/* ---------- generic ---------- */
+.panel{
+  background:var(--surface);border:3px solid var(--line);border-radius:22px;
+  box-shadow:6px 6px 0 var(--line);padding:clamp(16px,3vw,28px)
+}
+h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.05;margin:0 0 6px;font-weight:700}
+h2{font-size:1.45rem;margin:0 0 12px}
+.lead{color:var(--muted);font-size:1.1rem;margin:0 0 18px;max-width:60ch}
+.btn{
+  border:3px solid var(--line);border-radius:16px;padding:12px 22px;font-weight:700;font-size:1.15rem;
+  background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow);
+  transition:transform .08s, box-shadow .08s
+}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+.btn.ghost{background:var(--surface2);color:var(--ink)}
+.btn.good{background:var(--good);color:#fff}
+.btn.bad{background:var(--bad);color:#fff}
+.btn.big{font-size:clamp(1.2rem,2.6vw,1.6rem);padding:16px 28px}
+
+/* ---------- rules screen ---------- */
+.rules-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:start}
+.illus{background:var(--surface2);border:3px dashed var(--line);border-radius:18px;padding:8px;margin:6px 0 18px}
+.illus svg{display:block;width:100%;height:auto}
+.illus figcaption{text-align:center;color:var(--muted);font-size:.95rem;padding:2px 8px 6px}
+ol.rules{margin:0;padding-left:1.4em;display:grid;gap:9px}
+ol.rules li{padding-left:4px}
+ol.rules li::marker{font-weight:700;color:var(--accent)}
+.setup h2{margin-top:0}
+.field{margin-bottom:18px}
+.field > label, .field > .label{display:block;font-weight:600;margin-bottom:8px}
+.team-inputs{display:grid;gap:8px}
+.team-in{display:flex;align-items:center;gap:10px}
+.team-in .dot{flex:none;width:22px;height:22px;border-radius:50%;border:3px solid var(--line)}
+.team-in input{
+  flex:1;min-width:0;border:3px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--surface2);font-weight:500
+}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.choices.four{grid-template-columns:repeat(4,1fr)}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice span{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  border:3px solid var(--line);border-radius:14px;padding:10px 6px;background:var(--surface2);font-weight:600;min-height:64px
+}
+.choice span strong{font-size:1.6rem;line-height:1}
+.choice span small{color:var(--muted);font-weight:500}
+.choice input:checked + span{background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow)}
+.choice input:checked + span small{color:var(--accent-ink)}
+.choice input:focus-visible + span{outline:3px solid var(--accent);outline-offset:3px}
+.keys{color:var(--muted);font-size:.92rem;margin-top:14px}
+kbd{border:2px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:var(--surface2);font-family:inherit;font-weight:600}
+
+/* ---------- ready screen ---------- */
+.ready{text-align:center;padding:clamp(20px,5vw,48px) 16px}
+.ready .who{
+  display:inline-block;padding:8px 22px;border-radius:999px;border:3px solid var(--line);
+  font-weight:700;font-size:clamp(1.6rem,4.5vw,2.6rem);box-shadow:var(--shadow);margin:10px 0 16px
+}
+.ready .count{color:var(--muted);font-size:1.1rem}
+.ready .mini{max-width:420px;margin:10px auto 18px}
+.ready .mini svg{width:100%;height:auto}
+.ready p{font-size:1.2rem;max-width:44ch;margin:0 auto 22px}
+
+/* ---------- play screen ---------- */
+.play-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.turn-badge{padding:6px 16px;border-radius:999px;border:3px solid var(--line);font-weight:700;font-size:1.15rem}
+.progress{color:var(--muted);font-weight:600}
+.timer{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.timer .bar{flex:1;height:22px;border:3px solid var(--line);border-radius:999px;background:var(--surface2);overflow:hidden}
+.timer .fill{height:100%;background:var(--good);transition:width .1s linear}
+.timer .fill.warn{background:var(--t2)}
+.timer .fill.danger{background:var(--bad)}
+.timer .num{font-weight:700;font-size:1.7rem;min-width:3.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.timer.paused .num{opacity:.5}
+.card{
+  display:grid;grid-template-columns:minmax(220px,1fr) 1.3fr;gap:clamp(16px,3vw,32px);align-items:center;
+  background:var(--surface);border:3px solid var(--line);border-radius:26px;box-shadow:8px 8px 0 var(--line);
+  padding:clamp(16px,3vw,32px)
+}
+.pic{
+  aspect-ratio:1;border:3px solid var(--line);border-radius:22px;display:grid;place-items:center;position:relative;overflow:hidden
+}
+.pic::after{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:28px 28px;opacity:.07;pointer-events:none
+}
+.pic .emo{font-size:clamp(90px,16vw,190px);line-height:1;display:inline-block;filter:drop-shadow(4px 5px 0 rgba(19,35,91,.25))}
+.pic .emo svg{display:block;width:1em;height:1em}
+.word{font-size:clamp(2.2rem,6vw,4.2rem);font-weight:700;line-height:1;margin:0 0 14px;overflow-wrap:anywhere}
+.hint{
+  border:3px solid var(--line);border-radius:16px;background:var(--surface2);padding:14px 16px;font-size:clamp(1.05rem,2.2vw,1.35rem);margin-bottom:12px
+}
+.hint .h-title{display:block;font-weight:700;margin-bottom:4px}
+.nolook{color:var(--muted);font-size:1rem;margin:0}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px}
+
+/* ---------- overlay ---------- */
+.overlay{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:20px;background:rgba(8,14,40,.55)}
+.pop{
+  width:min(520px,100%);text-align:center;background:var(--surface);border:3px solid var(--line);border-radius:26px;
+  box-shadow:8px 8px 0 var(--line);padding:26px 22px;animation:popin .35s cubic-bezier(.2,1.6,.4,1)
+}
+.pop .big{font-size:3.2rem;line-height:1}
+.pop h3{font-size:2.1rem;margin:8px 0 4px}
+.pop p{color:var(--muted);font-size:1.1rem;margin:0 0 18px}
+.pop .actions{margin-top:0}
+
+/* ---------- end screen ---------- */
+.end{text-align:center}
+.podium{display:grid;gap:12px;max-width:620px;margin:20px auto 24px;text-align:left}
+.rank{
+  display:flex;align-items:center;gap:14px;border:3px solid var(--line);border-radius:18px;padding:12px 18px;box-shadow:var(--shadow)
+}
+.rank .medal{font-size:2.2rem}
+.rank .nm{flex:1;font-weight:700;font-size:1.35rem}
+.rank .nm small{display:block;font-weight:500;font-size:.95rem;color:var(--muted)}
+.rank .pts{font-weight:700;font-size:2rem;font-variant-numeric:tabular-nums}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* ---------- animations (gerakan gambar) ---------- */
+@keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-22%) scale(1.04,.96)}60%{transform:translateY(0) scale(1.08,.92)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8%) rotate(-4deg)}40%,80%{transform:translateX(8%) rotate(4deg)}}
+@keyframes float{0%,100%{transform:translateY(6%) rotate(-3deg)}50%{transform:translateY(-10%) rotate(3deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+@keyframes flip{0%,100%{transform:scaleX(1)}50%{transform:scaleX(-1)}}
+@keyframes droop{0%,15%{transform:translateY(-6%) rotate(0)}70%,85%{transform:translateY(14%) rotate(-18deg) scaleY(.9)}100%{transform:translateY(-6%) rotate(0)}}
+@keyframes robot{0%{transform:translateX(-10%) rotate(-6deg)}25%{transform:translateX(0) rotate(0)}50%{transform:translateX(10%) rotate(6deg)}75%{transform:translateX(0) rotate(0)}100%{transform:translateX(-10%) rotate(-6deg)}}
+@keyframes fly{0%{transform:translate(-18%,10%) rotate(-8deg)}50%{transform:translate(18%,-12%) rotate(8deg)}100%{transform:translate(-18%,10%) rotate(-8deg)}}
+@keyframes orbit{from{transform:rotate(0) translateX(14%) rotate(0)}to{transform:rotate(360deg) translateX(14%) rotate(-360deg)}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.6)}100%{transform:scale(1)}}
+@keyframes popin{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes armA{0%,100%{transform:rotate(-35deg)}50%{transform:rotate(30deg)}}
+@keyframes armB{0%,100%{transform:rotate(30deg)}50%{transform:rotate(-35deg)}}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes think{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+.a-bounce{animation:bounce 1s ease-in-out infinite}
+.a-wiggle{animation:wiggle .9s ease-in-out infinite}
+.a-spin{animation:spin 1.8s linear infinite}
+.a-shake{animation:shake .6s ease-in-out infinite}
+.a-float{animation:float 2.2s ease-in-out infinite}
+.a-pulse{animation:pulse 1.1s ease-in-out infinite}
+.a-flip{animation:flip 1.6s ease-in-out infinite}
+.a-droop{animation:droop 2.6s ease-in-out infinite}
+.a-robot{animation:robot 1.6s steps(4) infinite}
+.a-fly{animation:fly 2.4s ease-in-out infinite}
+.a-orbit{animation:orbit 3s linear infinite}
+.armA{transform-box:view-box;animation:armA .7s ease-in-out infinite}
+.armB{transform-box:view-box;animation:armB .7s ease-in-out infinite}
+.hop{animation:hop .7s ease-in-out infinite}
+.think{animation:think 1.2s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:0s!important;animation-iteration-count:1!important;transition:none!important}
+}
+
+@media (max-width:860px){
+  .rules-grid{grid-template-columns:1fr}
+  .card{grid-template-columns:1fr}
+  .pic{max-width:340px;width:100%;margin:0 auto}
+  .word{text-align:center}
+}
+@media (max-width:480px){
+  .choices.four{grid-template-columns:repeat(2,1fr)}
+  .brand span.txt{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true">🎭</span><span class="txt">Tebak Gaya Perangkat IT</span></div>
+  <div class="scores" id="scores" aria-live="polite"></div>
+  <div class="tools">
+    <button class="icon-btn" id="soundBtn" title="Suara nyala/mati">🔊</button>
+    <button class="icon-btn" id="fsBtn" title="Layar penuh">⛶</button>
+    <button class="icon-btn" id="quitBtn" hidden>Akhiri</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= ATURAN MAIN ================= -->
+<section class="screen" id="s-rules">
+  <div class="rules-grid">
+    <div class="panel">
+      <h1>Tebak Gaya Perangkat IT</h1>
+      <p class="lead">Kuis tebak gambar perangkat IT lewat peragaan: dari mouse, flashdisk, sampai server. Satu orang menebak, satu tim heboh memperagakan, semua tertawa.</p>
+
+      <figure class="illus" style="margin-left:0;margin-right:0">
+        <svg viewBox="0 0 560 270" role="img" aria-label="Ilustrasi: penebak berdiri membelakangi layar dan menghadap ke tim, tim melihat layar dan memperagakan gerakan">
+          <!-- lantai -->
+          <line x1="10" y1="236" x2="550" y2="236" stroke="var(--line)" stroke-width="3" stroke-dasharray="6 8"/>
+          <!-- layar -->
+          <rect x="18" y="40" width="150" height="108" rx="12" fill="var(--surface)" stroke="var(--line)" stroke-width="4"/>
+          <text x="93" y="112" font-size="58" text-anchor="middle">🖱️</text>
+          <rect x="84" y="148" width="18" height="40" fill="var(--line)"/>
+          <rect x="56" y="186" width="74" height="10" rx="5" fill="var(--line)"/>
+          <text x="93" y="262" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="16" fill="var(--ink)">Layar</text>
+
+          <!-- penebak: membelakangi layar, menghadap kanan -->
+          <g stroke="var(--line)" stroke-width="5" stroke-linecap="round" fill="none">
+            <line x1="240" y1="128" x2="240" y2="185"/>
+            <line x1="240" y1="185" x2="226" y2="232"/>
+            <line x1="240" y1="185" x2="254" y2="232"/>
+            <line x1="240" y1="142" x2="262" y2="120"/>
+            <line x1="262" y1="120" x2="252" y2="104"/>
+            <line x1="240" y1="142" x2="222" y2="170"/>
+          </g>
+          <circle cx="240" cy="108" r="20" fill="var(--accent)" stroke="var(--line)" stroke-width="4"/>
+          <circle cx="250" cy="104" r="3" fill="var(--line)"/>
+          <path d="M246 116 q5 3 9 0" stroke="var(--line)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- gelembung pikir -->
+          <g class="think">
+            <circle cx="268" cy="78" r="4" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
+            <rect x="262" y="30" width="84" height="38" rx="18" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/>
+            <text x="304" y="56" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="var(--ink)">Mouse?</text>
+          </g>
+          <text x="240" y="262" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="16" fill="var(--ink)">Penebak</text>
+          <!-- panah: membelakangi layar -->
+          <path d="M200 70 q-14 -10 -24 4" stroke="var(--muted)" stroke-width="2.5" fill="none" stroke-dasharray="4 4"/>
+          <text x="186" y="58" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="13" fill="var(--muted)">punggung ke layar</text>
+
+          <!-- tim: menghadap kiri, memperagakan -->
+          <g id="teamFigs">
+            <!-- orang 1 -->
+            <g class="hop">
+              <g stroke="var(--line)" stroke-width="5" stroke-linecap="round" fill="none">
+                <line x1="370" y1="140" x2="370" y2="192"/>
+                <line x1="370" y1="192" x2="356" y2="232"/>
+                <line x1="370" y1="192" x2="384" y2="232"/>
+                <line class="armA" style="transform-origin:370px 152px" x1="370" y1="152" x2="344" y2="128"/>
+                <line class="armB" style="transform-origin:370px 152px" x1="370" y1="152" x2="396" y2="128"/>
+              </g>
+              <circle cx="370" cy="120" r="19" fill="var(--t0)" stroke="var(--line)" stroke-width="4"/>
+              <circle cx="361" cy="116" r="3" fill="var(--line)"/>
+              <path d="M356 126 q5 5 10 0" stroke="var(--line)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- orang 2 -->
+            <g class="hop" style="animation-delay:-.35s">
+              <g stroke="var(--line)" stroke-width="5" stroke-linecap="round" fill="none">
+                <line x1="440" y1="140" x2="440" y2="192"/>
+                <line x1="440" y1="192" x2="426" y2="232"/>
+                <line x1="440" y1="192" x2="454" y2="232"/>
+                <line class="armB" style="transform-origin:440px 152px" x1="440" y1="152" x2="414" y2="176"/>
+                <line class="armA" style="transform-origin:440px 152px" x1="440" y1="152" x2="466" y2="124"/>
+              </g>
+              <circle cx="440" cy="120" r="19" fill="var(--t1)" stroke="var(--line)" stroke-width="4"/>
+              <circle cx="431" cy="116" r="3" fill="var(--line)"/>
+              <path d="M425 126 q5 5 10 0" stroke="var(--line)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- orang 3 -->
+            <g class="hop" style="animation-delay:-.15s">
+              <g stroke="var(--line)" stroke-width="5" stroke-linecap="round" fill="none">
+                <line x1="510" y1="140" x2="510" y2="192"/>
+                <line x1="510" y1="192" x2="496" y2="232"/>
+                <line x1="510" y1="192" x2="524" y2="232"/>
+                <line class="armA" style="transform-origin:510px 152px" x1="510" y1="152" x2="484" y2="132"/>
+                <line class="armA" style="transform-origin:510px 152px;animation-delay:-.35s" x1="510" y1="152" x2="536" y2="132"/>
+              </g>
+              <circle cx="510" cy="120" r="19" fill="var(--t2)" stroke="var(--line)" stroke-width="4"/>
+              <circle cx="501" cy="116" r="3" fill="var(--line)"/>
+              <ellipse cx="499" cy="127" rx="4" ry="5" fill="var(--line)"/>
+            </g>
+          </g>
+          <text x="440" y="262" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="16" fill="var(--ink)">Tim memperagakan</text>
+          <text x="440" y="82" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="13" fill="var(--muted)">melihat layar ⟶ beraksi</text>
+        </svg>
+        <figcaption>Penebak menghadap ke tim (membelakangi layar). Tim melihat gambar di layar lalu memperagakannya.</figcaption>
+      </figure>
+
+      <h2>Aturan main</h2>
+      <ol class="rules">
+        <li>Peserta dibagi menjadi <strong>3 kelompok</strong>. Kelompok bermain bergiliran, satu gambar per giliran: Tim 1, Tim 2, Tim 3, lalu kembali ke Tim 1.</li>
+        <li>Setiap giliran, satu anggota tim menjadi <strong>penebak</strong>. Penebak berdiri <strong>membelakangi layar</strong> dan menghadap ke timnya.</li>
+        <li>Anggota tim lainnya melihat gambar di layar lalu <strong>memperagakan</strong> gerakannya. Ide gerakan lucu sudah tersedia di layar, tapi boleh berkreasi sendiri.</li>
+        <li>Tim yang memperagakan <strong>dilarang menyebut kata jawaban</strong>, mengeja huruf, atau menulis. Efek suara seperti “bip-bup” atau “cekrek!” boleh.</li>
+        <li>Jawaban benar sebelum waktu habis mendapat <strong>10 poin</strong>. Salah, lewat, atau waktu habis mendapat 0 poin.</li>
+        <li>Jika tim menyebut jawaban atau penebak menoleh ke layar, gambar <strong>hangus</strong> (0 poin).</li>
+        <li>Ganti penebak di setiap giliran supaya semua anggota kebagian.</li>
+        <li>Pembawa acara menekan tombol <strong>Benar</strong> atau <strong>Lewat</strong>. Tim dengan poin tertinggi setelah semua gambar selesai menjadi juara.</li>
+      </ol>
+    </div>
+
+    <div class="panel setup">
+      <h2>Siapkan permainan</h2>
+      <div class="field">
+        <span class="label">Nama kelompok</span>
+        <div class="team-inputs">
+          <div class="team-in"><span class="dot" style="background:var(--t0)"></span><input id="n0" value="Tim Byte" maxlength="20" aria-label="Nama kelompok 1"></div>
+          <div class="team-in"><span class="dot" style="background:var(--t1)"></span><input id="n1" value="Tim Pixel" maxlength="20" aria-label="Nama kelompok 2"></div>
+          <div class="team-in"><span class="dot" style="background:var(--t2)"></span><input id="n2" value="Tim Cloud" maxlength="20" aria-label="Nama kelompok 3"></div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Jumlah gambar</span>
+        <div class="choices" role="radiogroup" aria-label="Jumlah gambar">
+          <label class="choice"><input type="radio" name="count" value="30" checked><span><strong>30</strong><small>10 per tim</small></span></label>
+          <label class="choice"><input type="radio" name="count" value="45"><span><strong>45</strong><small>15 per tim</small></span></label>
+          <label class="choice"><input type="radio" name="count" value="60"><span><strong>60</strong><small>20 per tim</small></span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Waktu per gambar</span>
+        <div class="choices four" role="radiogroup" aria-label="Waktu per gambar">
+          <label class="choice"><input type="radio" name="time" value="30"><span><strong>30</strong><small>detik</small></span></label>
+          <label class="choice"><input type="radio" name="time" value="45"><span><strong>45</strong><small>detik</small></span></label>
+          <label class="choice"><input type="radio" name="time" value="60" checked><span><strong>60</strong><small>detik</small></span></label>
+          <label class="choice"><input type="radio" name="time" value="90"><span><strong>90</strong><small>detik</small></span></label>
+        </div>
+      </div>
+      <button class="btn big" id="startBtn" style="width:100%">Mulai permainan 🎉</button>
+      <p class="keys">Pintasan papan ketik: <kbd>Spasi</kbd> tampilkan gambar / lanjut, <kbd>B</kbd> benar, <kbd>L</kbd> lewat, <kbd>P</kbd> jeda.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SIAP-SIAP ================= -->
+<section class="screen panel ready" id="s-ready" hidden>
+  <div class="count" id="r-count"></div>
+  <div class="who" id="r-who"></div>
+  <div class="mini">
+    <svg viewBox="0 0 300 120" aria-hidden="true">
+      <rect x="6" y="20" width="70" height="52" rx="8" fill="var(--surface2)" stroke="var(--line)" stroke-width="3"/>
+      <text x="41" y="55" text-anchor="middle" font-size="26">❓</text>
+      <rect x="35" y="72" width="12" height="18" fill="var(--line)"/>
+      <g stroke="var(--line)" stroke-width="4" stroke-linecap="round" fill="none">
+        <line x1="130" y1="62" x2="130" y2="92"/><line x1="130" y1="92" x2="120" y2="116"/><line x1="130" y1="92" x2="140" y2="116"/>
+        <line x1="130" y1="70" x2="144" y2="60"/><line x1="130" y1="70" x2="118" y2="84"/>
+      </g>
+      <circle cx="130" cy="48" r="13" fill="var(--accent)" stroke="var(--line)" stroke-width="3"/>
+      <circle cx="137" cy="46" r="2.4" fill="var(--line)"/>
+      <g class="hop"><g stroke="var(--line)" stroke-width="4" stroke-linecap="round" fill="none">
+        <line x1="215" y1="62" x2="215" y2="92"/><line x1="215" y1="92" x2="205" y2="116"/><line x1="215" y1="92" x2="225" y2="116"/>
+        <line class="armA" style="transform-origin:215px 70px" x1="215" y1="70" x2="198" y2="56"/>
+        <line class="armB" style="transform-origin:215px 70px" x1="215" y1="70" x2="232" y2="56"/></g>
+        <circle class="tcol" cx="215" cy="48" r="13" stroke="var(--line)" stroke-width="3"/><circle cx="208" cy="46" r="2.4" fill="var(--line)"/></g>
+      <g class="hop" style="animation-delay:-.35s"><g stroke="var(--line)" stroke-width="4" stroke-linecap="round" fill="none">
+        <line x1="270" y1="62" x2="270" y2="92"/><line x1="270" y1="92" x2="260" y2="116"/><line x1="270" y1="92" x2="280" y2="116"/>
+        <line class="armB" style="transform-origin:270px 70px" x1="270" y1="70" x2="253" y2="56"/>
+        <line class="armA" style="transform-origin:270px 70px" x1="270" y1="70" x2="287" y2="56"/></g>
+        <circle class="tcol" cx="270" cy="48" r="13" stroke="var(--line)" stroke-width="3"/><circle cx="263" cy="46" r="2.4" fill="var(--line)"/></g>
+    </svg>
+  </div>
+  <p>Penebak berdiri <strong>membelakangi layar</strong> dan menghadap ke tim. Tim siap memperagakan!</p>
+  <button class="btn big" id="revealBtn">Tampilkan gambar 👀</button>
+</section>
+
+<!-- ================= MAIN ================= -->
+<section class="screen" id="s-play" hidden>
+  <div class="play-head">
+    <span class="turn-badge" id="p-team"></span>
+    <span class="progress" id="p-prog"></span>
+  </div>
+  <div class="timer" id="timer">
+    <div class="bar"><div class="fill" id="t-fill" style="width:100%"></div></div>
+    <div class="num" id="t-num">60</div>
+    <button class="icon-btn" id="pauseBtn">Jeda</button>
+  </div>
+  <div class="card">
+    <div class="pic" id="p-pic"><span class="emo" id="p-emo"></span></div>
+    <div>
+      <p class="word" id="p-word"></p>
+      <div class="hint"><span class="h-title">🎭 Ide gerakan untuk tim</span><span id="p-hint"></span></div>
+      <p class="nolook">🙈 Penebak, jangan menoleh ke layar!</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn good big" id="okBtn">✅ Benar +10</button>
+    <button class="btn bad big" id="skipBtn">❌ Lewat / salah</button>
+  </div>
+</section>
+
+<!-- ================= SELESAI ================= -->
+<section class="screen panel end" id="s-end" hidden>
+  <div style="font-size:4rem" aria-hidden="true">🏆</div>
+  <h1 id="e-title"></h1>
+  <p class="lead" style="margin:0 auto" id="e-sub"></p>
+  <div class="podium" id="podium"></div>
+  <div class="actions">
+    <button class="btn big" id="againBtn">Main lagi 🔁</button>
+    <button class="btn ghost big" id="homeBtn">Ke aturan main</button>
+  </div>
+</section>
+
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="pop" role="dialog" aria-modal="true" aria-labelledby="o-title">
+    <div class="big" id="o-icon"></div>
+    <h3 id="o-title"></h3>
+    <p id="o-text"></p>
+    <div class="actions" id="o-actions"></div>
+  </div>
+</div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+/* Tema: perangkat IT — [nama perangkat, gambar, ide gerakan, animasi] */
+const ITEMS = [
+  ["Mouse","🖱️","Kepalkan tangan seperti mouse, klik-klik pakai telunjuk sambil bilang “cetek-cetek!”","bounce"],
+  ["Keyboard","⌨️","Mengetik super cepat di udara, jari menari-nari heboh","shake"],
+  ["Laptop","💻","Buka-tutup kedua telapak tangan seperti laptop, lalu mengetik di pangkuan","flip"],
+  ["Monitor","🖥️","Bentuk bingkai besar dengan tangan, pasang wajah di tengahnya","pulse"],
+  ["Printer","🖨️","Pelan-pelan keluarkan kertas dari mulut sambil bunyi “grrrk… grrrk…”","shake"],
+  ["Smartphone","📱","Scroll layar tanpa henti pakai jempol sambil senyum-senyum sendiri","float"],
+  ["Tablet","svg:tablet","Pegang papan besar dengan dua tangan, geser-geser layar sambil rebahan santai","float"],
+  ["Headset","🎧","Tangan di telinga, angguk-angguk mengikuti irama musik","bounce"],
+  ["Mikrofon","🎤","Ketuk-ketuk mik: “Tes, tes, satu dua…”, lalu bernyanyi fals","wiggle"],
+  ["Webcam","📹","Bulatkan tangan di dahi seperti kamera kecil, lalu melambai “Halo, rapat online!”","pulse"],
+  ["Kamera Digital","📸","Bentuk kotak dengan jari, intip, lalu jepret: “Cekrek!”","pulse"],
+  ["Speaker","🔊","Badan bergetar dag-dug-dag-dug mengikuti bas, tangan jadi corong di mulut","shake"],
+  ["Proyektor","📽️","Tangan memancarkan cahaya ke tembok, teman jadi bayangan wayang","pulse"],
+  ["Televisi","📺","Bentuk kotak di depan wajah, ganti-ganti channel dengan ekspresi berbeda","wiggle"],
+  ["Radio","📻","Putar tombol di telinga teman, bunyi kresek-kresek, lalu teman bernyanyi","wiggle"],
+  ["Telepon Kantor","☎️","“Kring-kring!” Jepit gagang di bahu sambil sibuk mencatat","shake"],
+  ["Mesin Faks","📠","Masukkan kertas ke mulut teman, bunyi “piiiip-krrrk”, kertas keluar dari punggung","shake"],
+  ["Pager","📟","Pinggang bergetar, lihat ikat pinggang, lalu lari panik mencari telepon","shake"],
+  ["Kalkulator","🧮","Hitung pakai jari super cepat, lalu tunjukkan hasil dengan bangga","bounce"],
+  ["Jam Pintar","⌚","Bicara ke jam tangan seperti agen rahasia","pulse"],
+  ["Kacamata VR","🥽","Pakai kacamata imajiner, gapai-gapai udara lalu kaget sendiri","wiggle"],
+  ["Joystick","🕹️","Genggam tuas dengan satu tangan, badan ikut miring ke arah tuas","wiggle"],
+  ["Stik Game","🎮","Pegang stik, pencet-pencet heboh, badan ikut miring kiri-kanan","wiggle"],
+  ["Drone","🚁","Tangan berputar di atas kepala, terbang mengitari tim","float"],
+  ["Robot","🤖","Jalan kaku patah-patah sambil bilang “bip… bup…”","robot"],
+  ["Satelit","🛰️","Rentangkan tangan seperti panel surya, melayang pelan mengelilingi teman","orbit"],
+  ["Router","📶","Berdiri tegak, dua tangan jadi antena, mata berkedip-kedip seperti lampu","pulse"],
+  ["Parabola","📡","Bentuk mangkuk besar dengan tangan, putar badan pelan-pelan mencari sinyal","wiggle"],
+  ["Server","🗄️","Berdiri tegak berjejer rapat, bunyi “ngiiing” tanpa henti","pulse"],
+  ["Hard Disk","💽","Putar-putar tangan seperti piringan di dalam kotak, bunyi “wrrrr…”","spin"],
+  ["Disket","💾","Kipas-kipas pakai kotak kecil, lalu simpan ke saku: “Tersimpan!”","flip"],
+  ["CD-ROM","💿","Tekan tombol di pusar, laci keluar dari perut, masukkan piringan","spin"],
+  ["DVD Player","📀","Duduk nonton sambil makan popcorn, pencet tombol play-pause berulang kali","spin"],
+  ["Flashdisk","svg:flashdisk","Colok jempol ke telinga teman, tunggu sebentar, cabut, lalu masukkan ke saku","bounce"],
+  ["RAM","svg:ram","Berbaring lurus kaku seperti batang, teman menekan sampai bunyi “klik!”","flip"],
+  ["Prosesor","svg:cpu","Berpikir super cepat, tangan bergerak secepat kilat, kepala pura-pura berasap","pulse"],
+  ["Kabel USB","svg:usb","Coba colok, salah, balik, salah lagi, balik lagi… akhirnya masuk!","flip"],
+  ["Charger","🔌","Colokkan jari ke telinga teman, teman langsung bangun segar bugar","wiggle"],
+  ["Power Bank","🔋","Gendong teman yang lemas, perlahan teman jadi semangat lagi","bounce"],
+  ["Kipas Pendingin","🌀","Tangan berputar kencang di depan badan, rambut teman tertiup ke belakang","spin"],
+  ["Lampu Pintar","💡","Tepuk tangan dua kali, wajah langsung bersinar terang","pulse"],
+  ["Mesin ATM","🏧","Masukkan kartu, tekan PIN sambil ditutupi, uang keluar, joget senang","bounce"],
+  ["Mesin Kasir","🧾","Scan barang “biip!”, lalu tarik struk yang panjangnya tidak habis-habis","shake"],
+  ["CCTV","svg:cctv","Kepala menoleh pelan kiri-kanan, mata melotot mengawasi semua orang","wiggle"],
+  ["Handycam","🎥","Rekam sambil jalan mundur dengan gaya sutradara, “Action!”","float"],
+  ["Mesin Absen Sidik Jari","svg:finger","Tempel jempol ke dahi teman, teman menjawab “Terima kasih!” dengan suara robot","pulse"],
+  ["CPU (Casing)","svg:tower","Berdiri kotak kaku di bawah meja, tekan tombol di dada, bunyi “ngiiing”","robot"],
+  ["Kartu SIM","svg:sim","Tusuk samping HP pakai jarum kecil, laci mungil keluar dari telinga teman","flip"],
+  ["Pen Digital","🖊️","Tulis-tulis di udara dengan gaya keren, lalu tiup ujung pena","wiggle"],
+  ["Ring Light","svg:ring","Lingkarkan tangan di depan wajah, pose ala siaran langsung sambil bilang “Hai gaes!”","pulse"],
+  ["Kartu e-Money","💳","Tempelkan kartu ke gerbang, bunyi “tit!”, lalu jalan santai melewati teman","bounce"],
+  ["GPS","🗺️","Putar-putar peta kebingungan: “Belok kiri seratus meter!”","wiggle"],
+  ["UPS","⚡","Lampu tiba-tiba mati, langsung berdiri tegak sambil bunyi “tiit… tiit…”","shake"],
+  ["Scanner","svg:scanner","Berbaring datar, teman menggerakkan cahaya dari kepala sampai kaki","float"],
+  ["Speaker Pintar","svg:smartspk","Bicara ke kotak: “Hei, putar lagu!”, kotak menjawab dengan suara datar","pulse"],
+  ["Layar Sentuh","👆","Tusuk-tusuk udara pakai telunjuk, lalu cubit-perbesar wajah teman","bounce"],
+  ["Mesin Arcade","👾","Masukkan koin, pencet tombol brutal, lalu teriak “Game over!”","shake"],
+  ["Bel Pintar","🔔","Pencet bel, wajahmu muncul di HP teman yang ada di ruangan lain","shake"],
+  ["Mesin Antrean","🎫","Tekan tombol, kertas nomor keluar, lalu duduk menunggu dengan wajah bosan","droop"],
+  ["Laser Pointer","svg:laser","Tunjuk titik merah di tembok, teman mengejarnya seperti kucing","wiggle"]
+];
+
+/* Gambar sederhana untuk perangkat yang tidak punya emoji */
+const O='stroke="#13235b" stroke-width="5" stroke-linejoin="round"';
+const SVG = {
+  tablet:`<rect x="20" y="8" width="60" height="84" rx="9" fill="#3b4a7a" ${O}/><rect x="27" y="16" width="46" height="62" rx="3" fill="#8fd3ff"/><path d="M33 30h20M33 40h30M33 50h24" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="85" r="3" fill="#dfe6ff"/>`,
+  flashdisk:`<rect x="37" y="6" width="26" height="30" rx="2" fill="#cfd6e6" ${O}/><rect x="42" y="13" width="6" height="7" fill="#13235b"/><rect x="52" y="13" width="6" height="7" fill="#13235b"/><rect x="32" y="34" width="36" height="58" rx="9" fill="#ff5a5f" ${O}/><circle cx="50" cy="78" r="5" fill="#fff" stroke="#13235b" stroke-width="3"/>`,
+  ram:`<rect x="6" y="30" width="88" height="32" rx="3" fill="#2fb36f" ${O}/><rect x="13" y="37" width="14" height="16" fill="#13235b"/><rect x="32" y="37" width="14" height="16" fill="#13235b"/><rect x="54" y="37" width="14" height="16" fill="#13235b"/><rect x="73" y="37" width="14" height="16" fill="#13235b"/><path d="M12 62v10M18 62v10M24 62v10M30 62v10M36 62v10M42 62v10M58 62v10M64 62v10M70 62v10M76 62v10M82 62v10M88 62v10" stroke="#ffb627" stroke-width="4"/>`,
+  cpu:`<path d="M34 8v14M46 8v14M58 8v14M70 8v14M34 78v14M46 78v14M58 78v14M70 78v14M8 34h14M8 46h14M8 58h14M8 70h14M78 34h14M78 46h14M78 58h14M78 70h14" stroke="#ffb627" stroke-width="5" stroke-linecap="round"/><rect x="20" y="20" width="60" height="60" rx="8" fill="#4a5a8c" ${O}/><rect x="35" y="35" width="30" height="30" rx="4" fill="#cfd6e6" stroke="#13235b" stroke-width="3"/>`,
+  usb:`<path d="M50 62c0 18 -18 14 -22 32" stroke="#13235b" stroke-width="9" fill="none" stroke-linecap="round"/><rect x="33" y="34" width="34" height="32" rx="7" fill="#6a4cff" ${O}/><rect x="38" y="8" width="24" height="28" fill="#cfd6e6" ${O}/><rect x="43" y="15" width="5" height="6" fill="#13235b"/><rect x="52" y="15" width="5" height="6" fill="#13235b"/>`,
+  cctv:`<path d="M14 22v30" stroke="#13235b" stroke-width="7" stroke-linecap="round"/><path d="M14 40h18" stroke="#13235b" stroke-width="7"/><rect x="28" y="26" width="58" height="30" rx="8" fill="#e9eefc" ${O} transform="rotate(14 57 41)"/><circle cx="80" cy="52" r="8" fill="#13235b"/><circle cx="80" cy="52" r="3" fill="#ff5a5f"/><circle cx="44" cy="34" r="4" fill="#ff5a5f"/>`,
+  finger:`<rect x="14" y="10" width="72" height="80" rx="14" fill="#d3f5f1" ${O}/><g fill="none" stroke="#12b5a6" stroke-width="4.5" stroke-linecap="round"><path d="M28 56Q28 24 50 24Q72 24 72 54"/><path d="M35 68Q34 32 50 32Q64 33 64 58"/><path d="M43 76Q41 42 50 41Q57 42 57 66"/><path d="M50 50V80"/></g>`,
+  tower:`<rect x="26" y="6" width="48" height="88" rx="7" fill="#3b4a7a" ${O}/><circle cx="50" cy="24" r="8" fill="#2fd08f" stroke="#13235b" stroke-width="3"/><path d="M36 44h28M36 54h28M36 64h28M36 74h28" stroke="#8fa0d6" stroke-width="4" stroke-linecap="round"/>`,
+  sim:`<path d="M24 8H62L78 24V92H24Z" fill="#ffb627" ${O}/><rect x="35" y="40" width="32" height="36" rx="5" fill="#ffe08a" stroke="#13235b" stroke-width="3"/><path d="M35 52h32M35 64h32M51 40v36" stroke="#13235b" stroke-width="2.5"/>`,
+  ring:`<path d="M50 72v22M36 94h28" stroke="#13235b" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="40" r="30" fill="none" stroke="#13235b" stroke-width="17"/><circle cx="50" cy="40" r="30" fill="none" stroke="#fff3a8" stroke-width="9"/><rect x="42" y="28" width="16" height="26" rx="3" fill="#3b4a7a" stroke="#13235b" stroke-width="3"/>`,
+  scanner:`<rect x="8" y="30" width="84" height="14" rx="4" fill="#4a5a8c" ${O}/><rect x="8" y="44" width="84" height="36" rx="6" fill="#e9eefc" ${O}/><rect x="16" y="56" width="68" height="8" rx="4" fill="#8fd3ff"/><circle cx="80" cy="72" r="3" fill="#2fd08f"/>`,
+  smartspk:`<rect x="28" y="16" width="44" height="76" rx="20" fill="#4a5a8c" ${O}/><ellipse cx="50" cy="24" rx="14" ry="5" fill="#12b5a6"/><g fill="#8fa0d6"><circle cx="40" cy="50" r="2.5"/><circle cx="50" cy="50" r="2.5"/><circle cx="60" cy="50" r="2.5"/><circle cx="40" cy="62" r="2.5"/><circle cx="50" cy="62" r="2.5"/><circle cx="60" cy="62" r="2.5"/><circle cx="40" cy="74" r="2.5"/><circle cx="50" cy="74" r="2.5"/><circle cx="60" cy="74" r="2.5"/></g>`,
+  laser:`<path d="M60 50L90 14" stroke="#ff2d55" stroke-width="4" stroke-dasharray="6 5"/><circle cx="90" cy="14" r="7" fill="#ff2d55"/><rect x="8" y="60" width="62" height="16" rx="8" fill="#3b4a7a" ${O} transform="rotate(-40 39 68)"/><circle cx="36" cy="70" r="3.5" fill="#ff5a5f"/>`
+};
+
+const TCOL = ["var(--t0)","var(--t1)","var(--t2)"];
+const TSOFT = ["var(--t0-soft)","var(--t1-soft)","var(--t2-soft)"];
+const $ = id => document.getElementById(id);
+
+const S = { teams:[], deck:[], idx:0, n:30, time:60, left:0, end:0, tick:null, paused:false, phase:"rules", sound:true, lastBeep:-1, overlayAct:null };
+
+/* ---------- suara ---------- */
+let AC;
+function tone(f,d,type="sine",v=.15,when=0){
+  if(!S.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime+when;
+    o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t+d+.02);
+  }catch(e){}
+}
+const sGood = () => { tone(660,.12,"triangle"); tone(880,.12,"triangle",.15,.11); tone(1320,.3,"triangle",.15,.22); };
+const sBad  = () => { tone(220,.25,"sawtooth",.1); tone(160,.35,"sawtooth",.1,.2); };
+const sTick = () => tone(1050,.06,"square",.06);
+const sEnd  = () => [523,659,784,1047].forEach((f,i)=>tone(f,.25,"triangle",.14,i*.15));
+
+/* ---------- util ---------- */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.hidden = s.id!==id);
+  $("quitBtn").hidden = !(id==="s-ready"||id==="s-play");
+  window.scrollTo(0,0);
+}
+function renderScores(bumpIdx){
+  const box=$("scores");
+  if(!S.teams.length){ box.innerHTML=""; return; }
+  const cur = S.phase==="ready"||S.phase==="play" ? S.idx%3 : -1;
+  box.innerHTML = S.teams.map((t,i)=>`
+    <div class="chip ${i===cur?"active":""} ${i===bumpIdx?"bump":""}" style="${i===cur?`background:${TSOFT[i]}`:""}">
+      <span class="dot" style="background:${TCOL[i]}"></span>${esc(t.name)}<b>${t.score}</b>
+    </div>`).join("");
+}
+function esc(s){ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- alur permainan ---------- */
+function startGame(){
+  S.n = +document.querySelector('input[name="count"]:checked').value;
+  S.time = +document.querySelector('input[name="time"]:checked').value;
+  S.teams = [0,1,2].map(i=>({ name: ($("n"+i).value.trim() || `Tim ${i+1}`), score:0, correct:0, played:0 }));
+  S.deck = shuffle(ITEMS).slice(0,S.n);
+  S.idx = 0;
+  tone(1,.01); // buka audio di perangkat seluler
+  goReady();
+}
+function goReady(){
+  if(S.idx >= S.deck.length) return finish();
+  S.phase="ready";
+  const ti=S.idx%3, t=S.teams[ti];
+  $("r-count").textContent = `Gambar ${S.idx+1} dari ${S.deck.length}`;
+  const who=$("r-who"); who.textContent = `Giliran ${t.name}`; who.style.background=TSOFT[ti];
+  document.querySelectorAll("#s-ready .tcol").forEach(c=>c.setAttribute("fill",TCOL[ti]));
+  renderScores(); show("s-ready");
+  $("revealBtn").focus();
+}
+function reveal(){
+  S.phase="play";
+  const ti=S.idx%3, t=S.teams[ti], [word,emo,hint,anim]=S.deck[S.idx];
+  const badge=$("p-team"); badge.textContent=t.name; badge.style.background=TSOFT[ti];
+  $("p-prog").textContent = `Gambar ${S.idx+1} / ${S.deck.length}  ·  Tim ini: ${t.played+1} / ${S.deck.length/3}`;
+  $("p-pic").style.background = TSOFT[ti];
+  const e=$("p-emo");
+  if(emo.startsWith("svg:")) e.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">${SVG[emo.slice(4)]}</svg>`;
+  else e.textContent = emo;
+  e.className="emo a-"+anim;
+  $("p-word").textContent=word; $("p-hint").textContent=hint;
+  show("s-play"); renderScores();
+  startTimer();
+}
+function startTimer(){
+  clearInterval(S.tick); S.paused=false; $("pauseBtn").textContent="Jeda"; $("timer").classList.remove("paused");
+  S.left=S.time*1000; S.end=Date.now()+S.left; S.lastBeep=-1;
+  S.tick=setInterval(tickFn,100); tickFn();
+}
+function tickFn(){
+  if(S.paused) return;
+  S.left=Math.max(0,S.end-Date.now());
+  const sec=Math.ceil(S.left/1000), pct=S.left/(S.time*1000)*100;
+  $("t-num").textContent=sec;
+  const f=$("t-fill"); f.style.width=pct+"%";
+  f.className="fill"+(sec<=5?" danger":sec<=Math.min(15,S.time/3)?" warn":"");
+  if(sec<=5 && sec>0 && sec!==S.lastBeep){ S.lastBeep=sec; sTick(); }
+  if(S.left<=0){ clearInterval(S.tick); timeUp(); }
+}
+function togglePause(){
+  if(S.phase!=="play") return;
+  S.paused=!S.paused;
+  if(S.paused){ S.left=Math.max(0,S.end-Date.now()); $("pauseBtn").textContent="Lanjut"; }
+  else{ S.end=Date.now()+S.left; $("pauseBtn").textContent="Jeda"; }
+  $("timer").classList.toggle("paused",S.paused);
+}
+function score(ok){
+  clearInterval(S.tick);
+  const ti=S.idx%3, t=S.teams[ti], word=S.deck[S.idx][0];
+  t.played++;
+  if(ok){ t.score+=10; t.correct++; }
+  S.idx++; S.phase="result";
+  renderScores(ok?ti:undefined);
+  if(ok){ sGood(); burst(60); }
+  else sBad();
+  openOverlay(ok?"🎉":"😅", ok?"Benar! +10":"Lewat", ok?`${t.name} berhasil menebak “${word}”.`:`Jawabannya “${word}”. Tidak ada poin kali ini.`,
+    [[S.idx>=S.deck.length?"Lihat hasil 🏆":"Lanjut ke tim berikutnya","btn big",()=>{closeOverlay();goReady();}]]);
+}
+function timeUp(){
+  S.phase="timeup"; tone(300,.5,"square",.08);
+  openOverlay("⏰","Waktu habis!","Apakah penebak menjawab benar tepat sebelum waktu habis?",
+    [["✅ Benar +10","btn good",()=>{closeOverlay();score(true);}],
+     ["❌ Tidak tertebak","btn bad",()=>{closeOverlay();score(false);}]]);
+}
+function finish(){
+  S.phase="end"; renderScores(); show("s-end");
+  const ranked=S.teams.map((t,i)=>({...t,i})).sort((a,b)=>b.score-a.score);
+  const top=ranked[0].score, winners=ranked.filter(r=>r.score===top);
+  $("e-title").textContent = winners.length>1 ? `Seri! ${winners.map(w=>w.name).join(" & ")}` : `${winners[0].name} juara!`;
+  $("e-sub").textContent = winners.length>1 ? "Poin sama kuat. Adakan satu gambar tambahan untuk penentuan, atau rayakan bersama." : `Total ${top} poin dari ${S.deck.length/3} gambar. Tepuk tangan yang meriah!`;
+  const medals=["🥇","🥈","🥉"]; let rank=0, prev=null;
+  $("podium").innerHTML = ranked.map((r,k)=>{
+    if(r.score!==prev){ rank=k; prev=r.score; }
+    return `<div class="rank" style="background:${TSOFT[r.i]}">
+      <span class="medal">${medals[rank]}</span>
+      <span class="nm">${esc(r.name)}<small>${r.correct} dari ${r.played} gambar tertebak</small></span>
+      <span class="pts">${r.score}</span></div>`;
+  }).join("");
+  sEnd(); burst(220);
+}
+function quit(){
+  openOverlay("🛑","Akhiri permainan?","Skor saat ini akan langsung menjadi hasil akhir.",
+    [["Ya, akhiri","btn bad",()=>{closeOverlay();clearInterval(S.tick);S.deck=S.deck.slice(0,Math.max(S.idx,0));finishEarly();}],
+     ["Lanjut main","btn ghost",()=>{closeOverlay();}]]);
+}
+function finishEarly(){
+  S.phase="end"; renderScores(); show("s-end");
+  const ranked=S.teams.map((t,i)=>({...t,i})).sort((a,b)=>b.score-a.score);
+  const top=ranked[0].score, winners=ranked.filter(r=>r.score===top);
+  $("e-title").textContent = winners.length>1 ? `Seri! ${winners.map(w=>w.name).join(" & ")}` : `${winners[0].name} juara!`;
+  $("e-sub").textContent = "Permainan diakhiri lebih awal.";
+  const medals=["🥇","🥈","🥉"]; let rank=0, prev=null;
+  $("podium").innerHTML = ranked.map((r,k)=>{
+    if(r.score!==prev){ rank=k; prev=r.score; }
+    return `<div class="rank" style="background:${TSOFT[r.i]}"><span class="medal">${medals[rank]}</span>
+      <span class="nm">${esc(r.name)}<small>${r.correct} dari ${r.played} gambar tertebak</small></span><span class="pts">${r.score}</span></div>`;
+  }).join("");
+  sEnd(); burst(160);
+}
+
+/* ---------- overlay ---------- */
+function openOverlay(icon,title,text,buttons){
+  $("o-icon").textContent=icon; $("o-title").textContent=title; $("o-text").textContent=text;
+  const box=$("o-actions"); box.innerHTML="";
+  buttons.forEach(([label,cls,fn],k)=>{ const b=document.createElement("button"); b.className=cls; b.textContent=label; b.onclick=fn; box.appendChild(b); if(k===0) S.overlayAct=fn; });
+  $("overlay").hidden=false; box.firstChild.focus();
+  if(S.phase==="play" && !S.paused){ togglePause(); S.autoPaused=true; }
+}
+function closeOverlay(){
+  $("overlay").hidden=true; S.overlayAct=null;
+  if(S.autoPaused){ S.autoPaused=false; if(S.phase==="play"&&S.paused) togglePause(); }
+}
+
+/* ---------- konfeti ---------- */
+const cv=$("confetti"), cx=cv.getContext("2d"); let parts=[], raf=null;
+function burst(n){
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  cv.hidden=false; cv.width=innerWidth; cv.height=innerHeight;
+  const cols=["#ff5a5f","#12b5a6","#ffb627","#6a4cff","#2fd08f"];
+  for(let i=0;i<n;i++) parts.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,r:Math.random()*360,vr:(Math.random()-.5)*20,s:6+Math.random()*8,c:cols[i%cols.length],life:0});
+  if(!raf) loop();
+}
+function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life++;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.r*Math.PI/180);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore();});
+  parts=parts.filter(p=>p.y<cv.height+40&&p.life<260);
+  if(parts.length){ raf=requestAnimationFrame(loop); } else { raf=null; cv.hidden=true; }
+}
+
+/* ---------- tombol & keyboard ---------- */
+$("startBtn").onclick=startGame;
+$("revealBtn").onclick=reveal;
+$("okBtn").onclick=()=>score(true);
+$("skipBtn").onclick=()=>score(false);
+$("pauseBtn").onclick=togglePause;
+$("quitBtn").onclick=quit;
+$("againBtn").onclick=()=>{ S.teams.forEach(t=>{t.score=0;t.correct=0;t.played=0;}); S.deck=shuffle(ITEMS).slice(0,S.n); S.idx=0; goReady(); };
+$("homeBtn").onclick=()=>{ S.phase="rules"; S.teams=[]; renderScores(); show("s-rules"); };
+$("soundBtn").onclick=()=>{ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔊":"🔇"; };
+$("fsBtn").onclick=()=>{ try{ document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }catch(e){} };
+
+document.addEventListener("keydown",e=>{
+  if(e.target.matches("input")) return;
+  const k=e.key.toLowerCase();
+  if(!$("overlay").hidden){
+    if((k===" "||k==="enter") && S.overlayAct && document.activeElement===document.body){ e.preventDefault(); S.overlayAct(); }
+    return;
+  }
+  if(S.phase==="ready" && (k===" "||k==="enter")){ e.preventDefault(); reveal(); }
+  else if(S.phase==="play"){
+    if(k==="b"){ score(true); }
+    else if(k==="l"||k==="s"){ score(false); }
+    else if(k==="p"){ togglePause(); }
+  }
+});
+</script>
+</body>
+</html>
